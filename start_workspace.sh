@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Check if the correct number of arguments are provided
-if [ "$#" -ne 2 ]; then
+if [ "$#" -lt 2 ]; then
     echo "Usage: $0 <Workspace Name> <Workspace Type>"
     exit 1
 fi
@@ -37,6 +37,8 @@ fi
 
 case "$WORKSPACE_TYPE" in
   "python") ./scripts/start_workspace_python.sh $WORK_DIR $SESSION_NAME
+  ;;
+  "conda") CONDA_ENV="$3" && ./scripts/start_workspace_python_conda.sh $WORK_DIR $SESSION_NAME $CONDA_ENV
   ;;
   "latex") ./scripts/start_workspace_latex.sh $WORK_DIR $SESSION_NAME
   ;;
