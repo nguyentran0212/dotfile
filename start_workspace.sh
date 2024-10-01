@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Check if the correct number of arguments are provided
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <Workspace Name>"
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <Workspace Name> <Workspace Type>"
     exit 1
 fi
 
@@ -17,6 +17,7 @@ fi
 # Get the workspace name and session name from the command line arguments
 WORKSPACE_NAME="$1"
 SESSION_NAME="$1"
+WORKSPACE_TYPE="$2"
 
 # Check if the workspace variable is set
 WORK_DIR="${!WORKSPACE_NAME}"  # This will generally be $HOME/path/to/workspace
@@ -34,6 +35,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+case "$WORKSPACE_TYPE" in
+  "python") ./scripts/start_workspace_python.sh $WORK_DIR $SESSION_NAME
+  ;;
+  "latex") ./scripts/start_workspace_latex.sh $WORK_DIR $SESSION_NAME
+  ;;
+  *) ./scripts/start_workspace_nvim.sh $WORK_DIR $SESSION_NAME
+  ;;
+esac
 
-# Call the script to open an nvim workspace 
-./scripts/start_workspace_nvim.sh $WORK_DIR $SESSION_NAME 
