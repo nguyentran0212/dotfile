@@ -1,31 +1,27 @@
 #!/bin/bash
 
 # Check if the correct number of arguments are provided
-if [ "$#" -lt 2 ]; then
-    echo "Usage: $0 <Workspace Name> <Workspace Type>"
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <Workspace Name>"
     exit 1
 fi
 
-# Load the environment variables from .env file
-if [ -f .env ]; then
-    export $(grep -v '^#' .env | xargs)
-else
-    echo ".env file not found!"
+# Load the environment variables from configs.json file
+if [ ! -f configs.json ]; then
+    echo "configs.json file not found!"
     exit 1
 fi
 
-# Get the workspace name and session name from the command line arguments
+# Load arguments for the workspace to open
 WORKSPACE_NAME="$1"
 SESSION_NAME="$1"
-WORKSPACE_TYPE="$2"
+WORK_DIR=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].workspace_dir' configs.json 2>/dev/null || echo "")
+WORKSPACE_TYPE=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].workspace_type' configs.json 2>/dev/null || echo "")
 
-# Check if the workspace variable is set
-WORK_DIR="${!WORKSPACE_NAME}"  # This will generally be $HOME/path/to/workspace
-if [ -z "$WORK_DIR" ]; then
-    echo "Workspace '$WORKSPACE_NAME' not found in .env file."
+# Check if workspace directory and workspace type loaded properly
+if [ "$WORK_DIR" = "null" ] || [ "$WORKSPACE_TYPE" = "null" ]; then
+    echo "Error: WORK_DIR or WORKSPACE_TYPE is empty! Hint: ensure the workspace name is correct and configs.json has been set up properly."
     exit 1
-else
-    echo "Resolved WORK_DIR: $WORK_DIR"
 fi
 
 # Resolve $HOME/path/to/workspace 
@@ -36,9 +32,9 @@ if [ $? -ne 0 ]; then
 fi
 
 case "$WORKSPACE_TYPE" in
-  "python") ./scripts/start_workspace_python.sh $WORK_DIR $SESSION_NAME
+  "poetry") ./scripts/start_workspace_poetry.sh $WORK_DIR $SESSION_NAME
   ;;
-  "conda") CONDA_ENV="$3" && ./scripts/start_workspace_python_conda.sh $WORK_DIR $SESSION_NAME $CONDA_ENV
+  "conda") CONDA_ENV=$(jq '."$WORKSPACE_NAME".conda_env' configs.json) && ./scripts/start_workspace_python_conda.sh $WORK_DIR $SESSION_NAME $CONDA_ENV
   ;;
   "latex") ./scripts/start_workspace_latex.sh $WORK_DIR $SESSION_NAME
   ;;

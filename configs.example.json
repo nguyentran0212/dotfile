@@ -1,0 +1,10 @@
+{
+  "learn_math_streamlit" : {
+    "workspace_dir" : "~/Documents/Github/learn-math-streamlit/",
+    "workspace_type" : "poetry"
+  },
+  "AideSphere" : {
+    "workspace_dir" : "~Documents/Github/AideSphere",
+    "workspace_type" : "poetry"
+  }
+}
