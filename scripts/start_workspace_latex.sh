@@ -16,11 +16,15 @@ cd "$WORK_DIR" || { echo "Failed to change directory to $WORK_DIR"; exit 1; }
 # Create a new tmux session 
 tmux new-session -s "$SESSION_NAME" -d
 
-# Create a new window and name it editor
-tmux rename-window -t "$SESSION_NAME" 'editor'
+# Rename the top pane to 'editor'
+tmux rename-window -t $SESSION_NAME:0 'editor'
 
-# Start nvim inside the editor window with activated virtual environment
-tmux send-keys -t "$SESSION_NAME:editor" "nvim" Enter
+# Start nvim inside the top pane
+tmux send-keys -t $SESSION_NAME:0 'nvim' Enter
+
+# Split the window horizontally and rename the panes
+tmux split-window -v -t $SESSION_NAME
+tmux select-layout even-vertical -t $SESSION_NAME
 
 # Create a new window for the command line terminal
 tmux new-window -t "$SESSION_NAME" -n 'terminal'
