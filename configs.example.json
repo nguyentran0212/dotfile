@@ -1,10 +1,19 @@
 {
-  "learn_math_streamlit" : {
-    "workspace_dir" : "~/Documents/Github/learn-math-streamlit/",
+  "AideSphere" : {
+    "workspace_dir" : "~/Documents/Github/AideSphere",
     "workspace_type" : "poetry"
   },
-  "AideSphere" : {
-    "workspace_dir" : "~Documents/Github/AideSphere",
-    "workspace_type" : "poetry"
+  "AideSphere_run" : {
+    "workspace_dir" : "~/Documents/Personal/AideSphere",
+    "workspace_type" : "poetry_run",
+    "start_cmd" : "streamlit run main.py"
+  },
+  "virtual_foundry" : {
+    "workspace_dir" : "~/Documents/Work/VirtualFoundry",
+    "workspace_type" : "latex"
+  },
+  "iegems_website" : {
+    "workspace_dir" : "~/Documents/Personal/iegems-website",
+    "workspace_type" : "nvim"
   }
 }

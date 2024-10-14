@@ -34,6 +34,8 @@ fi
 case "$WORKSPACE_TYPE" in
   "poetry") ./scripts/start_workspace_poetry.sh $WORK_DIR $SESSION_NAME
   ;;
+  "poetry_run") START_CMD=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].start_cmd' configs.json) && ./scripts/start_workspace_poetry_run.sh $WORK_DIR $SESSION_NAME "$START_CMD"
+  ;;
   "conda") CONDA_ENV=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].conda_env' configs.json) && ./scripts/start_workspace_python_conda.sh $WORK_DIR $SESSION_NAME $CONDA_ENV
   ;;
   "conda_run") CONDA_ENV=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].conda_env' configs.json) && START_CMD=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].start_cmd' configs.json) && ./scripts/start_workspace_conda_run.sh $WORK_DIR $SESSION_NAME "$CONDA_ENV" "$START_CMD"
