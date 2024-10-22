@@ -42,6 +42,8 @@ case "$WORKSPACE_TYPE" in
   ;;
   "latex") ./scripts/start_workspace_latex.sh $WORK_DIR $SESSION_NAME
   ;;
+  "dashboard") ./scripts/start_dashboard.sh
+  ;;
   *) ./scripts/start_workspace_nvim.sh $WORK_DIR $SESSION_NAME
   ;;
 esac

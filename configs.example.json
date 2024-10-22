@@ -15,5 +15,9 @@
   "iegems_website" : {
     "workspace_dir" : "~/Documents/Personal/iegems-website",
     "workspace_type" : "nvim"
+  },
+  "dashboard" : {
+    "workspace_dir" : ".",
+    "workspace_type" : "dashboard"
   }
 }
