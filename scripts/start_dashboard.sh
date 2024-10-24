@@ -8,6 +8,13 @@ fi
 
 SESSION_NAME="dashboard"
 
+# Check if the tmux session already exists
+if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    echo "Session $SESSION_NAME already exists. Attaching..."
+    tmux attach -t "$SESSION_NAME"
+    exit 0
+fi
+
 # Create a new tmux session 
 tmux new-session -s "$SESSION_NAME" -d
 

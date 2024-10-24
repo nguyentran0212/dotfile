@@ -12,6 +12,13 @@ SESSION_NAME="$2"
 CONDA_ENV="$3"
 START_CMD="$4"
 
+# Check if the tmux session already exists
+if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    echo "Session $SESSION_NAME already exists. Attaching..."
+    tmux attach -t "$SESSION_NAME"
+    exit 0
+fi
+
 # CD to working directory
 cd "$WORK_DIR" || { echo "Failed to change directory to $WORK_DIR"; exit 1; }
 
