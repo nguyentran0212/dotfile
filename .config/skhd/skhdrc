@@ -89,10 +89,10 @@ shift + alt - k : yabai -m window --swap north
 shift + alt - l : yabai -m window --swap east
 
 # move managed window
-shift + cmd - h : yabai -m window --warp west
-shift + cmd - j : yabai -m window --warp south
-shift + cmd - k : yabai -m window --warp north
-shift + cmd - l : yabai -m window --warp east
+# shift + cmd - h : yabai -m window --warp west
+# shift + cmd - j : yabai -m window --warp south
+# shift + cmd - k : yabai -m window --warp north
+# shift + cmd - l : yabai -m window --warp east
 
 # balance size of windows
 shift + alt - 0 : yabai -m space --balance
@@ -104,17 +104,19 @@ shift + alt - 0 : yabai -m space --balance
 # shift + alt - left   : yabai -m window --grid 1:2:0:0:1:1
 
 # create desktop, move window and follow focus - uses jq for parsing json (brew install jq)
-shift + cmd - n : yabai -m space --create && \
+shift + alt + cmd - n : yabai -m space --create && \
                   index="$(yabai -m query --spaces --display | jq 'map(select(."is-native-fullscreen" == false))[-1].index')" && \
                   yabai -m window --space "${index}" && \
                   yabai -m space --focus "${index}"
+# send window to desktop and follow focus
+shift + alt + cmd - j : yabai -m window --space prev; yabai -m space --focus prev
+shift + alt + cmd - k : yabai -m window --space next; yabai -m space --focus next
 
 # fast focus desktop
-# cmd + alt - x : yabai -m space --focus recent
+cmd + alt - j : yabai -m space --focus prev
+cmd + alt - k : yabai -m space --focus next
 # cmd + alt - 1 : yabai -m space --focus 1
 
-# send window to desktop and follow focus
-# shift + cmd - z : yabai -m window --space next; yabai -m space --focus next
 # shift + cmd - 2 : yabai -m window --space  2; yabai -m space --focus 2
 
 # focus monitor

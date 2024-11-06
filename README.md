@@ -14,6 +14,10 @@ List of supported tool configurations:
 - `yadm`: this tool is used to manage dotfiles in the home directory. We need it because we cannot simply `git clone` the dotfile repository into the home directory
 - `tmux`: workspace is created as tmux session and windows. Therefore, tmux must be present on the computer.
 - `jq`: this utility is used to parse `configs.json`. `start_workspace.sh` script would not work without this utility. 
+- `zsh`
+- `oh-my-zsh`: `sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`
+
+
 
 ### Basic usage
 
