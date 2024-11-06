@@ -3,7 +3,7 @@ sudo yabai --load-sa
 
 # global settings
 yabai -m config                                 \
-    external_bar                 off:40:0       \
+    external_bar                 all:40:0       \
     menubar_opacity              0.8            \
     mouse_follows_focus          off            \
     focus_follows_mouse          off            \

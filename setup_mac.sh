@@ -45,7 +45,7 @@ brew install dooit
 echo "Installing Brew Casks..."
 ### Terminals & Browsers
 # brew install --cask alacritty
-# brew install --cask kitty
+brew install --cask kitty
 # brew install --cask orion
 
 ### Office
@@ -63,7 +63,7 @@ echo "Installing Brew Casks..."
 # brew install --cask sloth
 
 ### Nice to have
-brew install --cask alfred
+# brew install --cask alfred
 
 ### Fonts
 brew install --cask sf-symbols
