@@ -36,10 +36,12 @@ brew install zsh-autosuggestions
 brew install zsh-fast-syntax-highlighting
 
 ### Nice to have
-brew install htop
-brew install svim
-brew install lazygit
-brew install dooit
+brew install htop  # Resource monitor
+brew install svim  
+brew install lazygit  # CLI GUI for GIT
+brew install dooit  # CLI Todo list in Python
+brew install nnn  # File manager
+brew install orion  # Browser for macOS
 
 ## Casks
 echo "Installing Brew Casks..."
