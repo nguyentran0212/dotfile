@@ -32,6 +32,7 @@ brew install yabai
 ### Terminal
 brew install neovim
 brew install starship
+brew install eza
 brew install zsh-autosuggestions
 brew install zsh-fast-syntax-highlighting
 
