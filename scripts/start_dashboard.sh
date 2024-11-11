@@ -18,7 +18,7 @@ fi
 # Create a new tmux session 
 tmux new-session -s "$SESSION_NAME" -d
 
-tmux send-keys -t "$SESSION_NAME" "calcure" Enter
+tmux send-keys -t "$SESSION_NAME" "dooit" Enter
 
 tmux split-window -v -t $SESSION_NAME
 tmux send-keys -t "$SESSION_NAME" "neofetch" Enter
