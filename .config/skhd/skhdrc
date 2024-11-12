@@ -77,7 +77,11 @@
 # ############################################################### #
 
 # Open Apps
-alt - t : kitty
+alt - t : kitty ~
+alt - f : open /Applications/Orion.app
+alt - o : open /Applications/Obsidian.app
+alt - m : open /Applications/Microsoft\ Outlook.app
+alt - e : open ~
 
 # focus window
 alt - h : yabai -m window --focus west
@@ -147,13 +151,13 @@ cmd + alt - k : yabai -m space --focus next
 
 # toggle window zoom
 # alt - d : yabai -m window --toggle zoom-parent
-shift + alt - m : yabai -m window --toggle zoom-fullscreen
+shift + cmd - m : yabai -m window --toggle zoom-fullscreen
 
 # toggle window split type
 # alt - e : yabai -m window --toggle split
 
 # float / unfloat window and center on screen
-shift + alt - f : yabai -m window --toggle float --grid 4:4:1:1:2:2
+shift + cmd - f : yabai -m window --toggle float --grid 4:4:1:1:2:2
 
 # toggle sticky(+float), picture-in-picture
 # alt - p : yabai -m window --toggle sticky --toggle pip
