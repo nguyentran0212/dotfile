@@ -66,7 +66,7 @@ echo 'export PATH="$PATH:/opt/nvim-linux64/bin"' >> ~/.zshrc
 pip3 install dooit dooit-extras
 
 ### Other tools
-sudo apt install htop 
+sudo apt install htop neofetch fortune cowsay
 
 # Reminder of manual setup steps
 echo "Do the following steps to complete the setup..."

@@ -27,5 +27,12 @@ return {
     init = function()
       vim.g.vimtex_view_method = "zathura"
     end
+  },
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    ---@module "ibl"
+    ---@type ibl.config
+    opts = {},
   }
 }
