@@ -24,10 +24,13 @@ brew install ripgrep
 brew install gh
 brew install ifstat
 brew install switchaudio-osx
+brew install nowplaying-cli
 brew install skhd
 brew install sketchybar
 brew install borders
 brew install yabai
+brew install lua
+(git clone https://github.com/FelixKratz/SbarLua.git /tmp/SbarLua && cd /tmp/SbarLua/ && make install && rm -rf /tmp/SbarLua/)  # SbarLua
 
 ### Terminal
 brew install neovim
@@ -73,6 +76,7 @@ brew install --cask sf-symbols
 brew install --cask font-hack-nerd-font
 brew install --cask font-jetbrains-mono
 brew install --cask font-fira-code
+curl -L https://github.com/kvndrsslr/sketchybar-app-font/releases/download/v1.0.4/sketchybar-app-font.ttf -o $HOME/Library/Fonts/sketchybar-app-font.ttf
 
 # Mac App Store Apps
 echo "Installing Mac App Store Apps..."
