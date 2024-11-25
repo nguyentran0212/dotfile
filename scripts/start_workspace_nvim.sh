@@ -29,9 +29,8 @@ tmux rename-window -t $SESSION_NAME 'editor'
 # Start nvim inside the top pane
 tmux send-keys -t $SESSION_NAME 'nvim' Enter
 
-# Split the window horizontally and rename the panes
-tmux split-window -v -t $SESSION_NAME
-tmux select-layout even-vertical -t $SESSION_NAME
+# Create a new window for the command line terminal
+tmux new-window -t "$SESSION_NAME" -n 'terminal'
 
 # Attach to tmux session
-tmux attach -t $SESSION_NAME
+tmux attach -t $SESSION_NAME:editor
