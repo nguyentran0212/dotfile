@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Check if the correct number of arguments are provided
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <Workspace Name>"
+    exit 1
+fi
+
+# Load the environment variables from configs.json file
+CONFIG_FILE="$HOME/.config/start-workspace/configs.json"
+if [ ! -f $CONFIG_FILE ]; then
+    echo "configs.json file not found!"
+    exit 1
+fi
+
+# Load arguments for the workspace to open
+WORKSPACE_NAME="$1"
+SESSION_NAME="$1"
+WORKSPACE_TYPE=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].workspace_type' $CONFIG_FILE 2>/dev/null || echo "")
+
+# Check workspace type loaded properly
+if [ "$WORKSPACE_TYPE" = "null" ]; then
+    echo "Error: WORKSPACE_TYPE of $WORKSPACE_NAME is not found in the configs.json! Hint: ensure the workspace name is correct and configs.json has been set up properly."
+    exit 1
+fi
+
+# Load working directory from configs and parse
+WORK_DIR=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].workspace_dir' $CONFIG_FILE 2>/dev/null || echo "")
+
+# Check if workspace directory and workspace type loaded properly
+if [ "$WORK_DIR" != "null" ]; then
+    echo "Found $WORK_DIR for workspace $WORKSPACE_NAME in the configs.json..."
+  # Resolve $HOME/path/to/workspace 
+  WORK_DIR=$(eval echo "$WORK_DIR")  # Security risk. However, if attacker can run this script, the host has been pwned anyway.
+  if [ $? -ne 0 ]; then
+      echo "Error resolving the path: $WORK_DIR"
+      exit 1
+  fi
+fi
+
+# Call suitable scripts to start the workspace
+case "$WORKSPACE_TYPE" in
+  "poetry") start-workspace-poetry $WORK_DIR $SESSION_NAME
+  ;;
+  "poetry_run") START_CMD=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].start_cmd' $CONFIG_FILE) && start-workspace-poetry-run $WORK_DIR $SESSION_NAME "$START_CMD"
+  ;;
+  "conda") CONDA_ENV=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].conda_env' $CONFIG_FILE) && start-workspace-python-conda $WORK_DIR $SESSION_NAME $CONDA_ENV
+  ;;
+  "conda_run") CONDA_ENV=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].conda_env' $CONFIG_FILE) && START_CMD=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].start_cmd' $CONFIG_FILE) && start-workspace-conda-run $WORK_DIR $SESSION_NAME "$CONDA_ENV" "$START_CMD"
+  ;;
+  "ssh") HOST_NAME=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].host_name' $CONFIG_FILE) && USER_NAME=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].user_name' $CONFIG_FILE) && start-workspace-ssh $SESSION_NAME $USER_NAME $HOST_NAME
+  ;;
+  "latex") start-workspace-latex $WORK_DIR $SESSION_NAME
+  ;;
+  "dashboard") start-dashboard
+  ;;
+  *) start-workspace-nvim $WORK_DIR $SESSION_NAME
+  ;;
+esac
+
