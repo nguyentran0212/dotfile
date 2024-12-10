@@ -8,6 +8,11 @@
     "workspace_type" : "poetry_run",
     "start_cmd" : "streamlit run main.py"
   },
+  "comfyui" : {
+    "workspace_dir" : "~/Document/GitHub/ComfyUI",
+    "workspace_type" : "poetry_run",
+    "start_cmd" : "streamlit run main.py"
+  },
   "virtual_foundry" : {
     "workspace_dir" : "~/Documents/Work/VirtualFoundry",
     "workspace_type" : "latex"
