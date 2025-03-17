@@ -18,12 +18,17 @@ fi
 # Create a new tmux session 
 tmux new-session -s "$SESSION_NAME" -d
 
-# Terminal 1: Todo list
-tmux send-keys -t "$SESSION_NAME" "dooit" Enter
+# Terminal 1: weather
+tmux send-keys -t "$SESSION_NAME" "curl wttr.in" Enter
 
-# Terminal 2: Utility
-tmux new-window -t "$SESSION_NAME" -n 'terminal'
-tmux send-keys -t "$SESSION_NAME" "fastfetch" Enter
+# Terminal 2: taskwarrior
+tmux split-window -v
+tmux send-keys -t "$SESSION_NAME" "task" Enter
+
+# Terminal 3: nnn
+tmux split-window -h
+tmux send-keys -t "$SESSION_NAME" "nnn ~" Enter
+
 
 # Attach to tmux session
 tmux select-window -t "$SESSION_NAME"
