@@ -17,8 +17,11 @@ return {
   	"nvim-treesitter/nvim-treesitter",
   	opts = {
   		ensure_installed = {
-  			"vim", "lua", "vimdoc", "html", "css", "markdown_inline"
+  			"vim", "lua", "vimdoc", "html", "css",
   		},
+      highlight = {
+        disable = {"markdown_inline", "markdown", "latex"}
+      }
   	},
   },
   {
@@ -26,6 +29,8 @@ return {
     lazy = false,
     init = function()
       vim.g.vimtex_view_method = "zathura"
+      vim.g.vimtex_fold_enabled = 1
+      vim.g.vimtex_complete_enabled = 0
     end
   },
   {

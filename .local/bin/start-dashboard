@@ -19,11 +19,11 @@ fi
 tmux new-session -s "$SESSION_NAME" -d
 
 # Terminal 1: weather
-tmux send-keys -t "$SESSION_NAME" "curl wttr.in" Enter
+tmux send-keys -t "$SESSION_NAME" "curl wttr.in/adelaide" Enter
 
 # Terminal 2: taskwarrior
 tmux split-window -v
-tmux send-keys -t "$SESSION_NAME" "task" Enter
+tmux send-keys -t "$SESSION_NAME" "tns" Enter
 
 # Terminal 3: nnn
 tmux split-window -h
