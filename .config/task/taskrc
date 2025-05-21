@@ -1,0 +1,50 @@
+# [Created by task 3.3.0 3/10/2025 21:09:58]
+# data.location=/home/gentran/.task
+
+# To use the default location of the XDG directories,
+# move this configuration file from ~/.taskrc to ~/.config/task/taskrc and update location config as follows:
+
+data.location=~/.local/share/task
+hooks.location=~/.config/task/hooks
+
+# Customise the next report
+report.next.filter = status:pending limit:20
+report.next.columns=id,start.age,entry.age,depends,priority,size,project,tags,recur,scheduled.countdown,due.relative,until.remaining,description,urgency
+report.next.labels=ID,Active,Age,Deps,P,S,Project,Tag,Recur,S,Due,Until,Description,Urg 
+
+# Customise the list report
+report.list.columns=id,start.age,entry.age,depends.indicator,priority,size,project,tags,recur.indicator,scheduled.countdown,due,until.remaining,description.count,urgency
+report.list.labels=ID,Active,Age,D,P,S,Project,Tags,R,Sch,Due,Until,Description,Urg 
+
+# Color theme (uncomment one to use)
+#include light-16.theme
+#include light-256.theme
+#include bubblegum-256.theme
+#include dark-16.theme
+#include dark-256.theme
+#include dark-red-256.theme
+#include dark-green-256.theme
+#include dark-blue-256.theme
+#include dark-violets-256.theme
+#include dark-yellow-green.theme
+#include dark-gray-256.theme
+#include dark-gray-blue-256.theme
+#include solarized-dark-256.theme
+#include solarized-light-256.theme
+#include no-color.theme
+
+# Add a user defined tag for size estimation
+uda.size.type=string
+uda.size.label=Size
+uda.size.values=S,M,L,  
+urgency.uda.size.S.coefficient=6.0
+urgency.uda.size.M.coefficient=3.9
+urgency.uda.size.L.coefficient=1.8
+urgency.uda.size..coefficient=1.0
+
+uda.reviewed.type=date
+uda.reviewed.label=Reviewed
+report._reviewed.description=Tasksh review report.  Adjust the filter to your needs.
+report._reviewed.columns=uuid
+report._reviewed.sort=reviewed+,modified+
+report._reviewed.filter=( reviewed.none: or reviewed.before:now-6days ) and ( +PENDING or +WAITING )

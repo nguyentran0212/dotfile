@@ -81,27 +81,29 @@ alias vc='code' # gui code editor
 
 ## Alias related to taskwarrior
 ### Reviewing task list
-alias tnw="task pro:Work limit:5 +READY"  # Next 5 work related tasks
-alias tns="task pro:Self limit:5 +READY"  # Next 5 for myself
-alias tnl="task pro:Self.learn limit:5 +READY"  # Next 5 learning items
-alias tnh="task pro:IEM limit:5 +READY"  # Next 5 tasks related to IEM hobby
+alias tnw="task pro:Work limit:10 +READY"  # Next 10 work related tasks
+alias tns="task pro:Self limit:10 +READY"  # Next 10 for myself
+alias tnl="task pro:Self.learn limit:10 +READY"  # Next 10 learning items
+alias tnh="task pro:IEM limit:10 +READY"  # Next 10 tasks related to IEM hobby
 alias tlr="task +refine list" # List all tasks that need further refinement
 alias today="task +TODAY or +OVERDUE" # Task dues today or already overdue
 ### Creating new tasks
 alias taw='task add pro:Work +refine' # Add a task to the work list 
 alias tas='task add pro:Self +refine' # Add a task to list of tasks for self
 alias tal='task add pro:Self.learn +refine' # Add a task to the list of task for myself
+alias tah='task add pro:IEM +refine' # Add a task to the list of task related to IEM hobby
 alias tat='task add pro:Self.think +refine' # Add a task to the list of thinking topics
 
 ## Alias related to timewarrior
-alias play='timew start Playing'
-alias lunch='timew start Lunch'
-alias dinner='timew start Dinner'
-alias cook='timew start Cooking'
-alias reflect='timew start Reflection'
-alias rest='timew start Resting'
-alias commute='timew start Commute'
-alias meeting='timew start Meeting'
+alias tplay='task +ACTIVE stop; timew start Playing'
+alias tlunch='task +ACTIVE stop; timew start Lunch'
+alias tdinner='task +ACTIVE stop; timew start Dinner'
+alias tcook='task +ACTIVE stop; timew start Cooking'
+alias treflect='task +ACTIVE stop; timew start Reflection'
+alias trest='task +ACTIVE stop; timew start Resting'
+alias tcommute='task +ACTIVE stop; timew start Commute'
+alias tmeeting='task +ACTIVE stop; timew start Meeting'
+alias tstop='task +ACTIVE stop; timew stop'
 
 # Directory navigation shortcuts
 alias ..='cd ..'
