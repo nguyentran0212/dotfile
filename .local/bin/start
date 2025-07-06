@@ -48,7 +48,7 @@ case "$WORKSPACE_TYPE" in
   ;;
   "conda_run") CONDA_ENV=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].conda_env' $CONFIG_FILE) && START_CMD=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].start_cmd' $CONFIG_FILE) && start-workspace-conda-run $WORK_DIR $SESSION_NAME "$CONDA_ENV" "$START_CMD"
   ;;
-  "venv_run") START_CMD=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].start_cmd' configs.json) && ./scripts/start_workspace_venv_run.sh $WORK_DIR $SESSION_NAME "$START_CMD"
+  "venv_run") START_CMD=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].start_cmd' $CONFIG_FILE) && ./scripts/start_workspace_venv_run.sh $WORK_DIR $SESSION_NAME "$START_CMD"
   ;;
   "ssh") HOST_NAME=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].host_name' configs.json) && USER_NAME=$(jq -r --arg workspace_name "$WORKSPACE_NAME" '.[$workspace_name].user_name' configs.json) && ./scripts/start_workspace_ssh.sh $SESSION_NAME $USER_NAME $HOST_NAME
   ;;
