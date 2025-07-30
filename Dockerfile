@@ -48,7 +48,7 @@ WORKDIR /home/devcontainer
 ENV HOME=/home/devcontainer
 
 # As the user, install AUR packages with yay.
-RUN yay -S --noconfirm oh-my-zsh zsh-theme-powerlevel10k
+RUN yay -S --noconfirm oh-my-zsh zsh-theme-powerlevel10k python311
 
 # Copy user configuration files from the local machine into the container.
 COPY --chown=devcontainer:devcontainer .zshrc /home/devcontainer/.zshrc
@@ -56,7 +56,7 @@ COPY --chown=devcontainer:devcontainer .config/nvim /home/devcontainer/.config/n
 
 # As the user, install python packages via pipx and add to PATH.
 # This ensures binaries like 'aider' are available in the shell.
-RUN pipx install aider-chat && \
+RUN pipx install aider-chat --python python3.11 && \
     pipx ensurepath
 ENV PATH="/home/devcontainer/.local/bin:$PATH"
 
