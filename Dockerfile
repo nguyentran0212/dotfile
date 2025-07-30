@@ -13,6 +13,8 @@ RUN pacman -Syu --noconfirm && \
     gcc-fortran \
     openblas \
     unzip \
+    curl \
+    tar \
     python \
     uv \
     nodejs \
@@ -51,11 +53,15 @@ RUN yay -S --noconfirm oh-my-zsh-git zsh-theme-powerlevel10k-git
 # Switch to root to install plugins into system directory
 USER root
 
-# Install zsh plugins by cloning them directly to conform to .zshrc
+# Install zsh plugins by downloading them directly to conform to .zshrc
 RUN ZSH_PLUGINS_DIR=/usr/share/oh-my-zsh/plugins && \
-    git -c credential.helper= clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_PLUGINS_DIR}/zsh-autosuggestions && \
-    git -c credential.helper= clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_PLUGINS_DIR}/zsh-syntax-highlighting && \
-    git -c credential.helper= clone https://github.com/Tarrasch/zsh-256color ${ZSH_PLUGINS_DIR}/zsh-256color
+    cd /tmp && \
+    curl -L https://github.com/zsh-users/zsh-autosuggestions/archive/master.tar.gz | tar -xz && \
+    curl -L https://github.com/zsh-users/zsh-syntax-highlighting/archive/master.tar.gz | tar -xz && \
+    curl -L https://github.com/Tarrasch/zsh-256color/archive/master.tar.gz | tar -xz && \
+    mv zsh-autosuggestions-master "${ZSH_PLUGINS_DIR}/zsh-autosuggestions" && \
+    mv zsh-syntax-highlighting-master "${ZSH_PLUGINS_DIR}/zsh-syntax-highlighting" && \
+    mv zsh-256color-master "${ZSH_PLUGINS_DIR}/zsh-256color"
 
 # Switch back to the devcontainer user
 USER devcontainer
