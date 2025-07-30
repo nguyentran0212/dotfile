@@ -10,6 +10,8 @@ RUN pacman -Syu --noconfirm && \
     sudo \
     git \
     go \
+    gcc-fortran \
+    openblas \
     unzip \
     python \
     python-pipx \
