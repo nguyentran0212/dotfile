@@ -38,9 +38,6 @@ RUN useradd -m builder && \
     cd / && rm -rf /tmp/yay && \
     userdel -r builder && rm /etc/sudoers.d/builder
 
-    # Install Oh-My-Zsh and Powerlevel10k from AUR
-    RUN yay -S --noconfirm oh-my-zsh powerlevel10k
-
 # Create a non-root user 'devcontainer', set its shell to zsh, and grant passwordless sudo.
 RUN useradd --create-home --shell /bin/zsh devcontainer && \
     echo "devcontainer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/devcontainer
@@ -50,6 +47,8 @@ USER devcontainer
 WORKDIR /home/devcontainer
 ENV HOME=/home/devcontainer
 
+# Install Oh-My-Zsh and Powerlevel10k from AUR using the correct package names
+RUN yay -S --noconfirm oh-my-zsh-git zsh-theme-powerlevel10k-git
 
 # Copy user configuration files from the local machine into the container.
 COPY --chown=devcontainer:devcontainer .zshrc /home/devcontainer/.zshrc
