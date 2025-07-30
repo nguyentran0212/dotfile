@@ -50,9 +50,9 @@ RUN yay -S --noconfirm oh-my-zsh-git zsh-theme-powerlevel10k-git
 
 # Install zsh plugins by cloning them directly to conform to .zshrc
 RUN ZSH_PLUGINS_DIR=/usr/share/oh-my-zsh/plugins && \
-    sudo env GIT_TERMINAL_PROMPT=0 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_PLUGINS_DIR}/zsh-autosuggestions && \
-    sudo env GIT_TERMINAL_PROMPT=0 git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_PLUGINS_DIR}/zsh-syntax-highlighting && \
-    sudo env GIT_TERMINAL_PROMPT=0 git clone https://github.com/Tarrasch/zsh-256color ${ZSH_PLUGINS_DIR}/zsh-256color
+    sudo env GIT_TERMINAL_PROMPT=0 git -c credential.helper= clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_PLUGINS_DIR}/zsh-autosuggestions && \
+    sudo env GIT_TERMINAL_PROMPT=0 git -c credential.helper= clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_PLUGINS_DIR}/zsh-syntax-highlighting && \
+    sudo env GIT_TERMINAL_PROMPT=0 git -c credential.helper= clone https://github.com/Tarrasch/zsh-256color ${ZSH_PLUGINS_DIR}/zsh-256color
 
 # Copy user configuration files from the local machine into the container.
 COPY --chown=devcontainer:devcontainer .zshrc /home/devcontainer/.zshrc
