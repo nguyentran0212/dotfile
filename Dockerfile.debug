@@ -29,7 +29,8 @@ RUN uv tool install --force --python python3.12 aider-chat@latest
 
 ENV SHELL=/bin/sh \
     PATH=/home/devcontainer/.local/bin:$PATH
-RUN uv tool update-shell --shell sh > /etc/profile.d/uv-tools.sh
+# Append UV’s PATH-exports into the devcontainer’s ~/.profile
+RUN uv tool update-shell --shell sh >> /home/devcontainer/.profile
 
 # Set a default command to keep the container running if needed for interactive debugging.
 CMD ["/bin/sh"]
