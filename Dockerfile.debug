@@ -23,14 +23,14 @@ WORKDIR /home/devcontainer
 ENV HOME=/home/devcontainer
 
 # Install Python 3.12 via uv
-RUN uv python install 3.12
+RUN uv python install 3.11
 ENV PATH=/home/devcontainer/.uv/versions/python/3.12/bin:$PATH
 
 # Attempt to install aider-chat with verbose output to diagnose the numpy build failure.
 # The --verbose flag will show detailed output from pip.
 
 RUN pipx --verbose install aider-chat \
-    --python="$(uv python which 3.12)"
+    --python="$(uv python which 3.11)"
 
 # Set a default command to keep the container running if needed for interactive debugging.
 CMD ["/bin/sh"]
