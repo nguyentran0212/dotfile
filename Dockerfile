@@ -56,9 +56,9 @@ USER root
 # Install zsh plugins by downloading them directly to conform to .zshrc
 RUN ZSH_PLUGINS_DIR=/usr/share/oh-my-zsh/plugins && \
     cd /tmp && \
-    curl -L https://github.com/zsh-users/zsh-autosuggestions/archive/master.tar.gz | tar -xz && \
-    curl -L https://github.com/zsh-users/zsh-syntax-highlighting/archive/master.tar.gz | tar -xz && \
-    curl -L https://github.com/Tarrasch/zsh-256color/archive/master.tar.gz | tar -xz && \
+    curl -L https://github.com/zsh-users/zsh-autosuggestions/archive/refs/heads/master.tar.gz | tar -xz && \
+    curl -L https://github.com/zsh-users/zsh-syntax-highlighting/archive/refs/heads/master.tar.gz | tar -xz && \
+    curl -L https://github.com/chrissicool/zsh-256color/archive/refs/heads/master.tar.gz | tar -xz && \
     mv zsh-autosuggestions-master "${ZSH_PLUGINS_DIR}/zsh-autosuggestions" && \
     mv zsh-syntax-highlighting-master "${ZSH_PLUGINS_DIR}/zsh-syntax-highlighting" && \
     mv zsh-256color-master "${ZSH_PLUGINS_DIR}/zsh-256color"
