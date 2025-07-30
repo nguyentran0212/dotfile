@@ -21,6 +21,9 @@ return {
   		},
       highlight = {
         disable = {"markdown_inline", "markdown", "latex"}
+      }, 
+      indent = {
+        enable = true
       }
   	},
   },
