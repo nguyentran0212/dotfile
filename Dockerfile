@@ -23,9 +23,7 @@ RUN pacman -Syu --noconfirm && \
     zsh \
     eza \
     zsh-autosuggestions \
-    zsh-syntax-highlighting \
-    oh-my-zsh \
-    zsh-theme-powerlevel10k
+    zsh-syntax-highlighting
 
 # Install pnpm globally via npm.
 RUN npm install -g pnpm
@@ -39,6 +37,9 @@ RUN useradd -m builder && \
     sudo -u builder makepkg -si --noconfirm && \
     cd / && rm -rf /tmp/yay && \
     userdel -r builder && rm /etc/sudoers.d/builder
+
+    # Install Oh-My-Zsh and Powerlevel10k from AUR
+    RUN yay -S --noconfirm oh-my-zsh powerlevel10k
 
 # Create a non-root user 'devcontainer', set its shell to zsh, and grant passwordless sudo.
 RUN useradd --create-home --shell /bin/zsh devcontainer && \
