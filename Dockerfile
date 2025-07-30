@@ -23,7 +23,9 @@ RUN pacman -Syu --noconfirm && \
     zsh \
     eza \
     zsh-autosuggestions \
-    zsh-syntax-highlighting
+    zsh-syntax-highlighting \
+    oh-my-zsh \
+    zsh-theme-powerlevel10k
 
 # Install pnpm globally via npm.
 RUN npm install -g pnpm
@@ -47,8 +49,6 @@ USER devcontainer
 WORKDIR /home/devcontainer
 ENV HOME=/home/devcontainer
 
-# As the user, install AUR packages with yay.
-RUN yay -S --noconfirm oh-my-zsh zsh-theme-powerlevel10k
 
 # Copy user configuration files from the local machine into the container.
 COPY --chown=devcontainer:devcontainer .zshrc /home/devcontainer/.zshrc
