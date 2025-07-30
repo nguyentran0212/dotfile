@@ -48,11 +48,17 @@ ENV HOME=/home/devcontainer
 # Install Oh-My-Zsh and Powerlevel10k from AUR using the correct package names
 RUN yay -S --noconfirm oh-my-zsh-git zsh-theme-powerlevel10k-git
 
+# Switch to root to install plugins into system directory
+USER root
+
 # Install zsh plugins by cloning them directly to conform to .zshrc
 RUN ZSH_PLUGINS_DIR=/usr/share/oh-my-zsh/plugins && \
-    sudo env GIT_TERMINAL_PROMPT=0 git -c credential.helper= clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_PLUGINS_DIR}/zsh-autosuggestions && \
-    sudo env GIT_TERMINAL_PROMPT=0 git -c credential.helper= clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_PLUGINS_DIR}/zsh-syntax-highlighting && \
-    sudo env GIT_TERMINAL_PROMPT=0 git -c credential.helper= clone https://github.com/Tarrasch/zsh-256color ${ZSH_PLUGINS_DIR}/zsh-256color
+    git -c credential.helper= clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_PLUGINS_DIR}/zsh-autosuggestions && \
+    git -c credential.helper= clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_PLUGINS_DIR}/zsh-syntax-highlighting && \
+    git -c credential.helper= clone https://github.com/Tarrasch/zsh-256color ${ZSH_PLUGINS_DIR}/zsh-256color
+
+# Switch back to the devcontainer user
+USER devcontainer
 
 # Copy user configuration files from the local machine into the container.
 COPY --chown=devcontainer:devcontainer .zshrc /home/devcontainer/.zshrc
