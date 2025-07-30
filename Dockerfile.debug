@@ -10,13 +10,9 @@ RUN pacman -Syu --noconfirm && \
       python-pipx \
       gcc-fortran \
       openblas \
-      gdb
+      gdb \
+      uv
 
-# Build & install Python 3.11 from AUR as root
-RUN git clone https://aur.archlinux.org/python311.git /tmp/python311 && \
-    cd /tmp/python311 && \
-    makepkg -si --noconfirm && \
-    rm -rf /tmp/python311
 
 # Create a non-root user 'devcontainer'
 RUN useradd --create-home --shell /bin/sh devcontainer
@@ -26,10 +22,14 @@ USER devcontainer
 WORKDIR /home/devcontainer
 ENV HOME=/home/devcontainer
 
+# Install Python 3.12 via uv
+RUN uv python install 3.12
+ENV PATH=/home/devcontainer/.uv/versions/python/3.12/bin:$PATH
+
 # Attempt to install aider-chat with verbose output to diagnose the numpy build failure.
 # The --verbose flag will show detailed output from pip.
 
-RUN pipx --verbose install aider-chat --python python3.11
+RUN pipx --verbose install aider-chat --python python3.12
 
 # Set a default command to keep the container running if needed for interactive debugging.
 CMD ["/bin/sh"]
