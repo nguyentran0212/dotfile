@@ -9,6 +9,7 @@ RUN pacman -Syu --noconfirm && \
     pacman -S --noconfirm \
     sudo \
     git \
+    go \
     unzip \
     python \
     python-pipx \
@@ -19,13 +20,21 @@ RUN pacman -Syu --noconfirm && \
     neovim \
     zsh \
     eza \
-    oh-my-zsh \
     zsh-autosuggestions \
-    zsh-syntax-highlighting \
-    zsh-theme-powerlevel10k
+    zsh-syntax-highlighting
 
 # Install pnpm globally via npm.
 RUN npm install -g pnpm
+
+# Install yay AUR Helper. It must be built as a non-root user.
+RUN useradd -m builder && \
+    echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder && \
+    cd /tmp && \
+    sudo -u builder git clone https://aur.archlinux.org/yay.git && \
+    cd yay && \
+    sudo -u builder makepkg -si --noconfirm && \
+    cd / && rm -rf /tmp/yay && \
+    userdel -r builder && rm /etc/sudoers.d/builder
 
 # Create a non-root user 'devcontainer', set its shell to zsh, and grant passwordless sudo.
 RUN useradd --create-home --shell /bin/zsh devcontainer && \
@@ -35,6 +44,9 @@ RUN useradd --create-home --shell /bin/zsh devcontainer && \
 USER devcontainer
 WORKDIR /home/devcontainer
 ENV HOME=/home/devcontainer
+
+# As the user, install AUR packages with yay.
+RUN yay -S --noconfirm oh-my-zsh zsh-theme-powerlevel10k
 
 # Copy user configuration files from the local machine into the container.
 COPY --chown=devcontainer:devcontainer .zshrc /home/devcontainer/.zshrc
