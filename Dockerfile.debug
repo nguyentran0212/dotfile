@@ -1,0 +1,27 @@
+# Minimal Dockerfile to debug numpy build issue with pipx
+FROM archlinux:base-devel
+
+# Install minimal dependencies for building numpy via pipx
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm \
+    sudo \
+    git \
+    python \
+    python-pipx \
+    gcc-fortran \
+    openblas
+
+# Create a non-root user 'devcontainer'
+RUN useradd --create-home --shell /bin/sh devcontainer
+
+# Switch to the new user.
+USER devcontainer
+WORKDIR /home/devcontainer
+ENV HOME=/home/devcontainer
+
+# Attempt to install aider-chat with verbose output to diagnose the numpy build failure.
+# The --verbose flag will show detailed output from pip.
+RUN pipx --verbose install aider-chat
+
+# Set a default command to keep the container running if needed for interactive debugging.
+CMD ["/bin/sh"]
