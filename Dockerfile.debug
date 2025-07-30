@@ -1,15 +1,22 @@
 # Minimal Dockerfile to debug numpy build issue with pipx
 FROM archlinux:base-devel
 
-# Install minimal dependencies for building numpy via pipx
+# Install minimal dependencies for building numpy via pipx (including gdb for AUR)
 RUN pacman -Syu --noconfirm && \
     pacman -S --noconfirm \
-    sudo \
-    git \
-    base-devel \
-    python-pipx \
-    gcc-fortran \
-    openblas
+      sudo \
+      git \
+      base-devel \
+      python-pipx \
+      gcc-fortran \
+      openblas \
+      gdb
+
+# Build & install Python 3.11 from AUR as root
+RUN git clone https://aur.archlinux.org/python311.git /tmp/python311 && \
+    cd /tmp/python311 && \
+    makepkg -si --noconfirm && \
+    rm -rf /tmp/python311
 
 # Create a non-root user 'devcontainer'
 RUN useradd --create-home --shell /bin/sh devcontainer
@@ -21,12 +28,6 @@ ENV HOME=/home/devcontainer
 
 # Attempt to install aider-chat with verbose output to diagnose the numpy build failure.
 # The --verbose flag will show detailed output from pip.
-# Build & install Python 3.11 from AUR
-RUN git clone https://aur.archlinux.org/python311.git /tmp/python311 && \
-    cd /tmp/python311 && \
-    makepkg -si --noconfirm && \
-    cd /home/devcontainer && \
-    rm -rf /tmp/python311
 
 RUN pipx --verbose install aider-chat --python python3.11
 
