@@ -26,7 +26,10 @@ RUN uv python install 3.12
 
 # Install the latest aider-chat via uv
 RUN uv tool install --force --python python3.12 aider-chat@latest
-RUN uv tool update-shell
+
+ENV SHELL=/bin/sh \
+    PATH=/home/devcontainer/.local/bin:$PATH
+RUN uv tool update-shell --shell sh > /etc/profile.d/uv-tools.sh
 
 # Set a default command to keep the container running if needed for interactive debugging.
 CMD ["/bin/sh"]
