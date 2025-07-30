@@ -14,6 +14,7 @@ RUN pacman -Syu --noconfirm && \
     python-pipx \
     nodejs \
     npm \
+    nvm \
     nnn \
     neovim \
     zsh \

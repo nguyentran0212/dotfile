@@ -123,4 +123,4 @@ alias mkdir='mkdir -p'
 source /usr/share/nvm/init-nvm.sh
 
 # Created by `pipx` on 2024-11-29 06:18:39
-export PATH="$PATH:/home/gentran/.local/bin"
+export PATH="$PATH:$HOME/.local/bin"
