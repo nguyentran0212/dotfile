@@ -23,7 +23,7 @@ RUN pacman -Syu --noconfirm && \
     pacman -S --needed --noconfirm \
       sudo git go gcc-fortran openblas unzip curl tar \
       python uv nodejs npm nvm pnpm nnn neovim zsh eza \
-      texlive-core texlive-latexextra texlive-bibtexextra biber && \
+      texlive-core texlive-latexextra texlive-bibtexextra biber latexmk && \
     pacman -Scc --noconfirm && \
     rm -rf /tmp/*
 
@@ -51,6 +51,7 @@ ENV HOME=/home/devcontainer \
     PATH=/home/devcontainer/.local/bin:/home/devcontainer/.uv/tools/aider-chat/latest/bin:$PATH
 
 COPY --chown=devcontainer:devcontainer .zshrc .zshrc
+COPY --chown=devcontainer:devcontainer .p10k.zsh .p10k.zsh
 COPY --chown=devcontainer:devcontainer .config/nvim .config/nvim
 
 # Install Python 3.12 and aider-chat via uv (no AUR builds, no pipx)
