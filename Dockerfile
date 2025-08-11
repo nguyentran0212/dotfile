@@ -23,7 +23,7 @@ RUN pacman -Syu --noconfirm && \
     pacman -S --needed --noconfirm \
       sudo git go gcc-fortran openblas unzip curl tar \
       python uv nodejs npm nvm pnpm nnn neovim zsh eza \
-      texlive-core texlive-latexextra texlive-bibtexextra biber latexmk && \
+      texlive-core texlive-latexextra texlive-binextra texlive-bibtexextra biber && \
     pacman -Scc --noconfirm && \
     rm -rf /tmp/*
 
