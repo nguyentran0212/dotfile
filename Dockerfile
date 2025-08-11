@@ -1,93 +1,64 @@
 # It is recommended to pin this to a specific digest for reproducible builds.
 # e.g., FROM archlinux:base-devel@sha256:....
-FROM archlinux:base-devel
+FROM archlinux:base-devel@sha256:15d3106aaf0e01eaeabf8ad9ba90924152f12848aaf6721bcecabaed16ee8523 AS builder
 
-# Update system, populate package file database, and install all required packages.
-# `unzip` is a dependency for mason.nvim. `pacman -Fy` is for command-not-found handler.
+# Build yay AUR Helper in a separate builder stage
 RUN pacman -Syu --noconfirm && \
-    pacman -Fy && \
-    pacman -S --noconfirm \
-    sudo \
-    git \
-    go \
-    gcc-fortran \
-    openblas \
-    unzip \
-    curl \
-    tar \
-    python \
-    uv \
-    nodejs \
-    npm \
-    nvm \
-    nnn \
-    neovim \
-    zsh \
-    eza
-
-# Install pnpm globally via npm.
-RUN npm install -g pnpm
-
-# Install yay AUR Helper. It must be built as a non-root user.
-RUN useradd -m builder && \
+    pacman -S --needed --noconfirm git base-devel && \
+    useradd -m builder && \
     echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder && \
-    cd /tmp && \
-    sudo -u builder git clone https://aur.archlinux.org/yay.git && \
-    cd yay && \
+    sudo -u builder git clone https://aur.archlinux.org/yay.git /tmp/yay && \
+    cd /tmp/yay && \
     sudo -u builder makepkg -si --noconfirm && \
-    cd / && rm -rf /tmp/yay && \
-    userdel -r builder && rm /etc/sudoers.d/builder
+    pacman -Scc --noconfirm && \
+    rm -rf /tmp/yay /var/cache/pacman/pkg/*
 
-# Create a non-root user 'devcontainer', set its shell to zsh, and grant passwordless sudo.
+FROM archlinux:base-devel@sha256:15d3106aaf0e01eaeabf8ad9ba90924152f12848aaf6721bcecabaed16ee8523
+
+# Copy yay binary from builder stage
+COPY --from=builder /usr/bin/yay /usr/bin/yay
+
+# Install core tools, LaTeX, and pnpm
+RUN pacman -Syu --noconfirm && \
+    pacman -S --needed --noconfirm \
+      sudo git go gcc-fortran openblas unzip curl tar \
+      python uv nodejs npm nvm pnpm nnn neovim zsh eza \
+      texlive-core texlive-latexextra texlive-bibtexextra biber && \
+    pacman -Scc --noconfirm && \
+    rm -rf /tmp/*
+
+# Create devcontainer user & install oh-my-zsh, theme & plugins
 RUN useradd --create-home --shell /bin/zsh devcontainer && \
-    echo "devcontainer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/devcontainer
+    echo "devcontainer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/devcontainer && \
+    yay -S --noconfirm oh-my-zsh-git zsh-theme-powerlevel10k-git && \
+    ZSH_PLUGINS=/usr/share/oh-my-zsh/plugins && \
+    mkdir -p $ZSH_PLUGINS/{zsh-autosuggestions,zsh-syntax-highlighting,zsh-256color} && \
+    cd /tmp && \
+      curl -L https://github.com/zsh-users/zsh-autosuggestions/archive/refs/heads/master.tar.gz | \
+        tar -xzf - --strip-components=1 -C $ZSH_PLUGINS/zsh-autosuggestions && \
+      curl -L https://github.com/zsh-users/zsh-syntax-highlighting/archive/refs/heads/master.tar.gz | \
+        tar -xzf - --strip-components=1 -C $ZSH_PLUGINS/zsh-syntax-highlighting && \
+      curl -L https://github.com/chrissicool/zsh-256color/archive/refs/heads/master.tar.gz | \
+        tar -xzf - --strip-components=1 -C $ZSH_PLUGINS/zsh-256color && \
+    pacman -Scc --noconfirm && \
+    rm -rf /tmp/*
 
-# Switch to the new user.
 USER devcontainer
 WORKDIR /home/devcontainer
-ENV HOME=/home/devcontainer
+ENV HOME=/home/devcontainer \
+    SHELL=/bin/zsh \
+    PATH=/home/devcontainer/.local/bin:/home/devcontainer/.uv/tools/aider-chat/latest/bin:$PATH
 
-# Install Oh-My-Zsh and Powerlevel10k from AUR using the correct package names
-RUN yay -S --noconfirm oh-my-zsh-git zsh-theme-powerlevel10k-git
-
-# Switch to root to install plugins into system directory
-USER root
-
-# Install zsh plugins by downloading them directly to conform to .zshrc
-RUN ZSH_PLUGINS_DIR=/usr/share/oh-my-zsh/plugins && \
-    cd /tmp && \
-    curl -L https://github.com/zsh-users/zsh-autosuggestions/archive/refs/heads/master.tar.gz | tar -xz && \
-    curl -L https://github.com/zsh-users/zsh-syntax-highlighting/archive/refs/heads/master.tar.gz | tar -xz && \
-    curl -L https://github.com/chrissicool/zsh-256color/archive/refs/heads/master.tar.gz | tar -xz && \
-    mv zsh-autosuggestions-master "${ZSH_PLUGINS_DIR}/zsh-autosuggestions" && \
-    mv zsh-syntax-highlighting-master "${ZSH_PLUGINS_DIR}/zsh-syntax-highlighting" && \
-    mv zsh-256color-master "${ZSH_PLUGINS_DIR}/zsh-256color"
-
-# Switch back to the devcontainer user
-USER devcontainer
-
-# Copy user configuration files from the local machine into the container.
-COPY --chown=devcontainer:devcontainer .zshrc /home/devcontainer/.zshrc
-COPY --chown=devcontainer:devcontainer .config/nvim /home/devcontainer/.config/nvim
-
-# Ensure uv’s shim dir is on PATH and tell uv we’re in zsh
-ENV SHELL=/bin/zsh \
-    PATH=/home/devcontainer/.local/bin:$PATH
+COPY --chown=devcontainer:devcontainer .zshrc .zshrc
+COPY --chown=devcontainer:devcontainer .config/nvim .config/nvim
 
 # Install Python 3.12 and aider-chat via uv (no AUR builds, no pipx)
 RUN uv python install 3.12 && \
     uv tool install --force --python python3.12 aider-chat@latest && \
-    uv tool update-shell >> /home/devcontainer/.zprofile
-
-# Finally, include the aider binary dir in the default PATH
-ENV PATH=/home/devcontainer/.uv/tools/aider-chat/latest/bin:$PATH
+    uv tool update-shell >> ~/.zprofile
 
 # Automate Neovim setup.
-# 1. Install all plugins defined in the configuration via lazy.nvim.
-RUN nvim --headless "+Lazy! sync" +qa
+RUN nvim --headless "+Lazy! sync" +qa && \
+    nvim --headless "+MasonInstallAll" +qa
 
-# 2. Install all LSPs, formatters, and linters managed by Mason, using NvChad's custom command.
-RUN nvim --headless "+MasonInstallAll" +qa
-
-# Set the default command for the container to launch the zsh shell.
 CMD ["/bin/zsh"]
