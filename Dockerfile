@@ -30,7 +30,8 @@ RUN pacman -Syu --noconfirm && \
 # Create devcontainer user & install oh-my-zsh, theme & plugins
 RUN useradd --create-home --shell /bin/zsh devcontainer && \
     echo "devcontainer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/devcontainer && \
-    yay -S --noconfirm oh-my-zsh-git zsh-theme-powerlevel10k-git && \
+    git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /usr/share/oh-my-zsh && \
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /usr/share/zsh-theme-powerlevel10k && \
     ZSH_PLUGINS=/usr/share/oh-my-zsh/plugins && \
     mkdir -p $ZSH_PLUGINS/{zsh-autosuggestions,zsh-syntax-highlighting,zsh-256color} && \
     cd /tmp && \
