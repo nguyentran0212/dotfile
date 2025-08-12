@@ -21,7 +21,7 @@ COPY --from=builder /usr/bin/yay /usr/bin/yay
 # Install core tools, LaTeX, and pnpm
 RUN pacman -Syu --noconfirm && \
     pacman -S --needed --noconfirm \
-      sudo git go gcc-fortran openblas unzip curl tar \
+      sudo git openssh xclip go gcc-fortran openblas unzip curl tar \
       python uv nodejs npm nvm pnpm nnn neovim zsh eza \
       texlive-basic	texlive-bibtexextra texlive-binextra texlive-fontsrecommended texlive-latex texlive-latexrecommended texlive-mathscience texlive-pictures texlive-publishers texlive-latexextra && \
     pacman -Scc --noconfirm && \
