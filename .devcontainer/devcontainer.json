@@ -1,0 +1,32 @@
+{
+  "name": "Dotfile Setup",
+  "remoteUser": "devcontainer",
+  "image": "my-devcontainer",
+  "build": {
+    "dockerFile": "./Dockerfile",
+    "context": ".."
+  },
+  "forwardPorts": [
+    3000,
+    8000
+  ],
+  "containerEnv": {
+    "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
+    "GEMINI_API_KEY": "${localEnv:GEMINI_API_KEY}",
+    "DISPLAY": "${localEnv:DISPLAY}",
+    "XAUTHORITY": "/tmp/.Xauthority"
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.gitconfig,target=/home/devcontainer/.gitconfig,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.ssh,target=/home/devcontainer/.ssh,type=bind,consistency=cached",
+    "source=life-engineer-frontend-node_modules,target=/workspaces/life-engineer/frontend/node_modules,type=volume"
+  ],
+  "postStartCommand": "",
+  "runArgs": [
+    "--mount=type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix",
+    "--mount=type=bind,source=${localEnv:XAUTHORITY},target=/tmp/.Xauthority,readonly",
+    "--add-host=host.docker.internal:host-gateway",
+    "--publish", "3000:3000",
+    "--publish", "8000:8000"
+  ]
+}
