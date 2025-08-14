@@ -21,8 +21,8 @@ COPY --from=builder /usr/bin/yay /usr/bin/yay
 # Install core tools, LaTeX, and pnpm
 RUN pacman -Syu --noconfirm && \
     pacman -S --needed --noconfirm \
-      sudo git openssh xclip go gcc-fortran openblas unzip curl tar \
-      python uv nodejs npm nvm pnpm nnn neovim zsh eza \
+      sudo git openssh xclip wl-clipboard go gcc-fortran openblas unzip curl tar \
+      python uv nodejs npm nvm pnpm nnn neovim zsh eza tmux \
       texlive-basic	texlive-bibtexextra texlive-binextra texlive-fontsrecommended texlive-latex texlive-latexrecommended texlive-mathscience texlive-pictures texlive-publishers texlive-latexextra && \
     pacman -Scc --noconfirm && \
     rm -rf /tmp/*
@@ -53,6 +53,8 @@ ENV HOME=/home/devcontainer \
 COPY --chown=devcontainer:devcontainer .zshrc .zshrc
 COPY --chown=devcontainer:devcontainer .p10k.zsh .p10k.zsh
 COPY --chown=devcontainer:devcontainer .config/nvim .config/nvim
+COPY --chown=devcontainer:devcontainer .config/tmux .config/tmux
+COPY --chown=devcontainer:devcontainer setup_tpm.sh setup_tpm.sh
 
 # Install Python 3.12 and aider-chat via uv (no AUR builds, no pipx)
 RUN uv python install 3.12 && \
@@ -63,4 +65,7 @@ RUN uv python install 3.12 && \
 RUN nvim --headless "+Lazy! sync" +qa && \
     nvim --headless "+MasonInstallAll" +qa
 
+# Run tmux plugin setup
+RUN chmod +x setup_tpm.sh && \
+    ./setup_tpm.sh
 CMD ["/bin/zsh"]
