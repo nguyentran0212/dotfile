@@ -1,7 +1,7 @@
 {
   "name": "Dotfile Setup",
   "remoteUser": "devcontainer",
-  "image": "my-devcontainer",
+  "image": "ghcr.io/nguyentran0212/my-dev-container:main",
   "build": {
     "dockerFile": "./Dockerfile",
     "context": ".."
