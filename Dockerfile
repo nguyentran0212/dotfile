@@ -22,7 +22,7 @@ COPY --from=builder /usr/bin/yay /usr/bin/yay
 RUN pacman -Syu --noconfirm && \
     pacman -S --needed --noconfirm \
       sudo git openssh xclip wl-clipboard go gcc-fortran openblas unzip curl tar \
-      python uv nodejs npm nvm pnpm nnn neovim zsh eza tmux \
+      python uv nodejs npm nvm pnpm nnn neovim zsh eza tmux ruby \
       texlive-basic	texlive-bibtexextra texlive-binextra texlive-fontsrecommended texlive-latex texlive-latexrecommended texlive-mathscience texlive-pictures texlive-publishers texlive-latexextra && \
     pacman -Scc --noconfirm && \
     rm -rf /tmp/*
@@ -48,7 +48,7 @@ USER devcontainer
 WORKDIR /home/devcontainer
 ENV HOME=/home/devcontainer \
     SHELL=/bin/zsh \
-    PATH=/home/devcontainer/.local/bin:/home/devcontainer/.uv/tools/aider-chat/latest/bin:$PATH
+    PATH=$GEM_HOME/bin:/home/devcontainer/.local/bin:/home/devcontainer/.uv/tools/aider-chat/latest/bin:$PATH
 
 COPY --chown=devcontainer:devcontainer .zshrc .zshrc
 COPY --chown=devcontainer:devcontainer .p10k.zsh .p10k.zsh
@@ -68,4 +68,27 @@ RUN nvim --headless "+Lazy! sync" +qa && \
 # Run tmux plugin setup
 RUN chmod +x setup_tpm.sh && \
     ./setup_tpm.sh
+
+# Setup Ruby and bundler
+RUN \
+    # Step 1: Discover the correct GEM_HOME path at build time.
+    GEM_HOME="$(ruby -e 'puts Gem.user_dir')" && \
+    \
+    # Step 2: Export the variables for the *current* RUN command.
+    # This ensures 'gem install' uses the correct paths right now.
+    export GEM_HOME="$GEM_HOME" && \
+    export PATH="$GEM_HOME/bin:$PATH" && \
+    \
+    # Step 3: Persist these variables for the *runtime* interactive shell.
+    # This writes the dynamic export commands to the Zsh profile.
+    echo '' >> ~/.zprofile && \
+    echo '# Set up Ruby environment' >> ~/.zprofile && \
+    echo 'export GEM_HOME="$(ruby -e '\''puts Gem.user_dir'\'')"' >> ~/.zprofile && \
+    echo 'export PATH="$GEM_HOME/bin:$PATH"' >> ~/.zprofile && \
+    \
+    # Step 4: Now, run the gem installation.
+    # It will succeed because the environment is correctly configured for this layer.
+    gem install bundler
+
+# Entry point
 CMD ["/bin/zsh"]
