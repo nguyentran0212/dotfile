@@ -114,10 +114,22 @@ case "$cmd" in
     stop|down)
         cid=$(find_container_id)
         if [[ -z $cid ]]; then
-            echo "⚠️  No running dev‑container found for $(basename "$WORKDIR")." >&2
+            echo "⚠️  No running dev-container found for $(basename "$WORKDIR")." >&2
         else
-            echo "🛑  Stopping and removing container $cid …"
-            $DOCKER_CMD rm -f "$cid" || true
+            # Try to find a docker-compose project label
+            compose_project=$($DOCKER_CMD inspect --format '{{ index .Config.Labels "com.docker.compose.project" }}' "$cid" 2>/dev/null)
+
+            if [[ -n "$compose_project" ]]; then
+                echo "Compose project '$compose_project' found."
+                echo "Gracefully stopping all services for this project with 'docker compose'…"
+                # Use the project name directly with 'docker compose down'
+                # This correctly shuts down all containers and networks for the project.
+                $DOCKER_CMD compose -p "$compose_project" down
+            else
+                echo "This does not appear to be a docker-compose project."
+                echo "🛑  Stopping and removing single container $cid …"
+                $DOCKER_CMD rm -f "$cid" || true
+            fi
         fi
         ;;
 
