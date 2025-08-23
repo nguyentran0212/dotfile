@@ -125,3 +125,11 @@ source /usr/share/nvm/init-nvm.sh
 
 # Created by `pipx` on 2024-11-29 06:18:39
 export PATH="$PATH:$HOME/.local/bin:$HOME/.lmstudio/bin"
+
+# pnpm
+export PNPM_HOME="/home/gentran1991/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
