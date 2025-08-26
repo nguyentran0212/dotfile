@@ -22,7 +22,7 @@
     "source=${localEnv:HOME}/.ssh,target=/home/devcontainer/.ssh,type=bind,consistency=cached",
     "source=life-engineer-frontend-node_modules,target=/workspaces/life-engineer/frontend/node_modules,type=volume"
   ],
-  "postStartCommand": "",
+  "postStartCommand": "nvim --headless \"+MasonInstallAll\" +qa",
   "runArgs": [
     "--mount=type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix",
     "--mount=type=bind,source=${localEnv:XDG_RUNTIME_DIR},target=${localEnv:XDG_RUNTIME_DIR}",
