@@ -18,12 +18,13 @@ FROM archlinux:base-devel@sha256:15d3106aaf0e01eaeabf8ad9ba90924152f12848aaf6721
 # Copy yay binary from builder stage
 COPY --from=builder /usr/bin/yay /usr/bin/yay
 
-# Install core tools, LaTeX, and pnpm
+# Install core tools, LaTeX, pnpm, and man pages
 RUN pacman -Syu --noconfirm && \
     pacman -S --needed --noconfirm \
       sudo git openssh xclip wl-clipboard go gcc-fortran openblas unzip curl tar ripgrep \
       python uv nodejs npm nvm pnpm nnn neovim zsh eza tmux ruby \
-      texlive-basic	texlive-bibtexextra texlive-binextra texlive-fontsrecommended texlive-latex texlive-latexrecommended texlive-mathscience texlive-pictures texlive-publishers texlive-latexextra && \
+      texlive-basic	texlive-bibtexextra texlive-binextra texlive-fontsrecommended texlive-latex texlive-latexrecommended texlive-mathscience texlive-pictures texlive-publishers texlive-latexextra \
+      man-db man-pages && \
     pacman -Scc --noconfirm && \
     rm -rf /tmp/*
 
@@ -89,6 +90,9 @@ RUN \
     # Step 4: Now, run the gem installation.
     # It will succeed because the environment is correctly configured for this layer.
     gem install bundler
+
+# Preinstall pnpm tools
+RUN pnpm add -g @qwen-code/qwen-code@latest @google/gemini-cli
 
 # Entry point
 CMD ["/bin/zsh"]
