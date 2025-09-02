@@ -3,7 +3,8 @@
 # ------------------------------------------------------------
 FROM archlinux:base-devel@sha256:15d3106aaf0e01eaeabf8ad9ba90924152f12848aaf6721bcecabaed16ee8523 AS builder
 
-# Update base, install git & base-devel, then build yay as a non‑root user
+# Update the base, install the few tools we need to build yay,
+# then compile it as a temporary non‑root user.
 RUN pacman -Syu --noconfirm && \
     pacman -S --needed --noconfirm git base-devel && \
     useradd -m builder && \
@@ -15,21 +16,22 @@ RUN pacman -Syu --noconfirm && \
     rm -rf /tmp/yay /var/cache/pacman/pkg/*
 
 # ------------------------------------------------------------
-# 1️⃣  Runtime image
+# 1️⃣  Runtime image (single‑stage – we keep the builder only for yay)
 # ------------------------------------------------------------
 FROM archlinux:base-devel@sha256:15d3106aaf0e01eaeabf8ad9ba90924152f12848aaf6721bcecabaed16ee8523
 
 # ------------------------------------------------------------
-#   1️⃣  Copy yay from builder stage
+#   1️⃣  Copy yay from the builder stage (still root‑owned – that’s fine)
 # ------------------------------------------------------------
 COPY --from=builder /usr/bin/yay /usr/bin/yay
 
 # ------------------------------------------------------------
-#   2️⃣  Install system‑wide tools (pacman)
+#   2️⃣  Install system‑wide packages (pacman) – must be root
 # ------------------------------------------------------------
 RUN pacman -Syu --noconfirm && \
     pacman -S --needed --noconfirm \
-        sudo git openssh xclip wl-clipboard go gcc-fortran openblas unzip curl tar ripgrep \
+        sudo git openssh xclip wl-clipboard go gcc-fortran openblas \
+        unzip curl tar ripgrep \
         python uv nodejs npm nvm pnpm nnn neovim zsh eza tmux ruby \
         texlive-basic texlive-bibtexextra texlive-binextra texlive-fontsrecommended \
         texlive-latex texlive-latexrecommended texlive-mathscience texlive-pictures \
@@ -38,7 +40,7 @@ RUN pacman -Syu --noconfirm && \
     rm -rf /tmp/*
 
 # ------------------------------------------------------------
-#   3️⃣  Create the non‑root user that will own everything
+#   3️⃣  Create the non‑root developer user (must be before any COPY)
 # ------------------------------------------------------------
 ARG USERNAME=devcontainer
 ARG USER_UID=1000
@@ -49,7 +51,7 @@ RUN groupadd -g ${USER_GID} ${USERNAME} && \
     echo "${USERNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${USERNAME}
 
 # ------------------------------------------------------------
-#   4️⃣  Copy dot‑files & scripts **as the new user**
+#   4️⃣  Copy configuration files **as the new user**
 # ------------------------------------------------------------
 COPY --chown=${USERNAME}:${USERNAME} .zshrc .zshrc
 COPY --chown=${USERNAME}:${USERNAME} .p10k.zsh .p10k.zsh
@@ -58,25 +60,29 @@ COPY --chown=${USERNAME}:${USERNAME} .config/tmux .config/tmux
 COPY --chown=${USERNAME}:${USERNAME} setup_tpm.sh setup_tpm.sh
 
 # ------------------------------------------------------------
-#   5️⃣  Global environment for the user
+#   5️⃣  Global environment for the user (defined step‑by‑step)
 # ------------------------------------------------------------
-ENV HOME=/home/${USERNAME} \
-    SHELL=/bin/zsh \
-    # Ruby gems – use the per‑user directory
-    GEM_HOME=${HOME}/.gem \
-    # pnpm global tools – default location under $HOME
-    PNPM_HOME=${HOME}/.local/share/pnpm \
-    # Add the important bin folders to PATH *once* for the rest of the build
-    PATH=${GEM_HOME}/bin:${PNPM_HOME}:${HOME}/.local/bin:/home/${USERNAME}/.uv/tools/aider-chat/latest/bin:${PATH}
+ENV HOME=/home/${USERNAME}
+ENV SHELL=/bin/zsh
+
+# Ruby‑gem home (per‑user)
+ENV GEM_HOME=${HOME}/.gem
+
+# pnpm global home (per‑user)
+ENV PNPM_HOME=${HOME}/.local/share/pnpm
+
+# PATH – we prepend the two per‑user bin dirs *once*,
+# the rest of the build (and any interactive shell) will inherit it.
+ENV PATH=${GEM_HOME}/bin:${PNPM_HOME}:${HOME}/.local/bin:${HOME}/.uv/tools/aider-chat/latest/bin:${PATH}
 
 # ------------------------------------------------------------
-#   6️⃣  Switch to the non‑root user – **all following RUNs are as devcontainer**
+#   6️⃣  Switch to the non‑root user – **everything below runs as devcontainer**
 # ------------------------------------------------------------
 USER ${USERNAME}
 WORKDIR ${HOME}
 
 # ------------------------------------------------------------
-#   7️⃣  Oh‑My‑Zsh + Powerlevel10k + plugins (user‑owned)
+#   7️⃣  Oh‑My‑Zsh + Powerlevel10k + plugins (owned by the user)
 # ------------------------------------------------------------
 RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git ${HOME}/.oh-my-zsh && \
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${HOME}/.zsh-theme-powerlevel10k && \
@@ -92,31 +98,33 @@ RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git ${HOME}/.oh-my-zs
     rm -rf /tmp/*
 
 # ------------------------------------------------------------
-#   8️⃣  pnpm – set up the global bin dir and install the tools you need
+#   8️⃣  pnpm – create the global dir, run `pnpm setup`, then install the tools you need
 # ------------------------------------------------------------
 RUN mkdir -p "${PNPM_HOME}" && \
     pnpm setup && \
-    # `pnpm setup` writes the export to ~/.profile; we also prepend it now
+    # `pnpm setup` writes an export to ~/.profile; we also make sure the bin is on PATH now
     export PATH="${PNPM_HOME}:$PATH" && \
-    pnpm add -g @qwen-code/qwen-code@latest @google/gemini-cli
+    pnpm add -g @qwen-code/qwen-code@latest @google/gemini-cli && \
+    # Persist the same PATH for later RUNs / interactive shells
+    echo "export PATH='${PNPM_HOME}:$PATH'" >> ${HOME}/.zprofile
 
 # ------------------------------------------------------------
-#   9️⃣  Python 3.12 & aider‑chat (via uv, all in the user’s $HOME)
+#   9️⃣  Python 3.12 + aider‑chat (via uv – everything stays in $HOME)
 # ------------------------------------------------------------
 RUN uv python install 3.12 && \
     uv tool install --force --python python3.12 aider-chat@latest && \
     uv tool update-shell >> ${HOME}/.zprofile
 
 # ------------------------------------------------------------
-#  🔟  Ruby – install Bundler in the user gem home
+#  🔟  Ruby – install Bundler in the per‑user gem directory
 # ------------------------------------------------------------
 RUN gem install bundler && \
-    # Persist the same env vars for interactive shells
-    { echo; echo '# Ruby environment'; echo "export GEM_HOME='${GEM_HOME}'"; \
+    { echo; echo '# Ruby environment'; \
+      echo "export GEM_HOME='${GEM_HOME}'"; \
       echo "export PATH='${GEM_HOME}/bin:$PATH'"; } >> ${HOME}/.zprofile
 
 # ------------------------------------------------------------
-# 1️⃣1️⃣  Neovim – sync plugins and install LSPs via Mason
+# 1️⃣1️⃣  Neovim – sync plugins (Lazy) and install LSPs via Mason
 # ------------------------------------------------------------
 RUN nvim --headless "+Lazy! sync" +qa && \
     nvim --headless "+MasonInstallAll" +qa
@@ -127,6 +135,6 @@ RUN nvim --headless "+Lazy! sync" +qa && \
 RUN chmod +x setup_tpm.sh && ./setup_tpm.sh
 
 # ------------------------------------------------------------
-#  🎉  Default entry point
+#   🎉  Default entry point – you land straight into a configured Zsh
 # ------------------------------------------------------------
 CMD ["/bin/zsh"]

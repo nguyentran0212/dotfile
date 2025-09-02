@@ -77,8 +77,8 @@ alias pl='$aurhelper -Qs' # list installed package
 alias pa='$aurhelper -Ss' # list available package
 alias pc='$aurhelper -Sc' # remove unused cache
 alias po='$aurhelper -Qtdq | $aurhelper -Rns -' # remove unused packages, also try > $aurhelper -Qqd | $aurhelper -Rsu --print -
-alias vc='code' # gui code editor
-alias dc='devc.sh'
+alias vim='nvim'
+alias devc='devc.sh'
 
 ## Alias related to taskwarrior
 ### Reviewing task list
@@ -94,17 +94,6 @@ alias tas='task add pro:Self +refine' # Add a task to list of tasks for self
 alias tal='task add pro:Self.learn +refine' # Add a task to the list of task for myself
 alias tah='task add pro:IEM +refine' # Add a task to the list of task related to IEM hobby
 alias tat='task add pro:Self.think +refine' # Add a task to the list of thinking topics
-
-## Alias related to timewarrior
-alias tplay='task +ACTIVE stop; timew start Playing'
-alias tlunch='task +ACTIVE stop; timew start Lunch'
-alias tdinner='task +ACTIVE stop; timew start Dinner'
-alias tcook='task +ACTIVE stop; timew start Cooking'
-alias treflect='task +ACTIVE stop; timew start Reflection'
-alias trest='task +ACTIVE stop; timew start Resting'
-alias tcommute='task +ACTIVE stop; timew start Commute'
-alias tmeeting='task +ACTIVE stop; timew start Meeting'
-alias tstop='task +ACTIVE stop; timew stop'
 
 # Directory navigation shortcuts
 alias ..='cd ..'
@@ -123,11 +112,14 @@ alias mkdir='mkdir -p'
 # pokemon-colorscripts --no-title -r 1,3,6
 source /usr/share/nvm/init-nvm.sh
 
+# Use nvim as manual page reader
+export MANPAGER='nvim +Man!'
+
 # Created by `pipx` on 2024-11-29 06:18:39
 export PATH="$PATH:$HOME/.local/bin:$HOME/.lmstudio/bin"
 
 # pnpm
-export PNPM_HOME="/home/gentran1991/.local/share/pnpm"
+export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
