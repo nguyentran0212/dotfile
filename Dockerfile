@@ -51,21 +51,6 @@ RUN groupadd -g ${USER_GID} ${USERNAME} && \
     echo "${USERNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${USERNAME}
 
 # ------------------------------------------------------------
-#   6️⃣  Switch to the non‑root user – **everything below runs as devcontainer**
-# ------------------------------------------------------------
-USER ${USERNAME}
-WORKDIR ${HOME}
-
-# ------------------------------------------------------------
-#   4️⃣  Copy configuration files **as the new user**
-# ------------------------------------------------------------
-COPY --chown=${USERNAME}:${USERNAME} .zshrc .zshrc
-COPY --chown=${USERNAME}:${USERNAME} .p10k.zsh .p10k.zsh
-COPY --chown=${USERNAME}:${USERNAME} .config/nvim .config/nvim
-COPY --chown=${USERNAME}:${USERNAME} .config/tmux .config/tmux
-COPY --chown=${USERNAME}:${USERNAME} setup_tpm.sh setup_tpm.sh
-
-# ------------------------------------------------------------
 #   5️⃣  Global environment for the user (defined step‑by‑step)
 # ------------------------------------------------------------
 ENV HOME=/home/${USERNAME}
@@ -80,6 +65,21 @@ ENV PNPM_HOME=${HOME}/.local/share/pnpm
 # PATH – we prepend the two per‑user bin dirs *once*,
 # the rest of the build (and any interactive shell) will inherit it.
 ENV PATH=${GEM_HOME}/bin:${PNPM_HOME}:${HOME}/.local/bin:${HOME}/.uv/tools/aider-chat/latest/bin:${PATH}
+
+# ------------------------------------------------------------
+#   6️⃣  Switch to the non‑root user – **everything below runs as devcontainer**
+# ------------------------------------------------------------
+USER ${USERNAME}
+WORKDIR ${HOME}
+
+# ------------------------------------------------------------
+#   4️⃣  Copy configuration files **as the new user**
+# ------------------------------------------------------------
+COPY --chown=${USERNAME}:${USERNAME} .zshrc .zshrc
+COPY --chown=${USERNAME}:${USERNAME} .p10k.zsh .p10k.zsh
+COPY --chown=${USERNAME}:${USERNAME} .config/nvim .config/nvim
+COPY --chown=${USERNAME}:${USERNAME} .config/tmux .config/tmux
+COPY --chown=${USERNAME}:${USERNAME} setup_tpm.sh setup_tpm.sh
 
 # ------------------------------------------------------------
 #   7️⃣  Oh‑My‑Zsh + Powerlevel10k + plugins (owned by the user)
