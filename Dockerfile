@@ -101,9 +101,6 @@ RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git ${HOME}/.oh-my-zs
 #   8️⃣  pnpm – create the global dir, run `pnpm setup`, then install the tools you need
 # ------------------------------------------------------------
 RUN mkdir -p "${PNPM_HOME}" && \
-    pnpm setup && \
-    # `pnpm setup` writes an export to ~/.profile; we also make sure the bin is on PATH now
-    export PATH="${PNPM_HOME}:$PATH" && \
     pnpm add -g @qwen-code/qwen-code@latest @google/gemini-cli && \
     # Persist the same PATH for later RUNs / interactive shells
     echo "export PATH='${PNPM_HOME}:$PATH'" >> ${HOME}/.zprofile
