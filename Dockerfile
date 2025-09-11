@@ -20,6 +20,7 @@ RUN apt-get update && apt-get upgrade -y && \
         nnn \
         zsh \
         eza \
+        tmux \
         inetutils-tools \
         dnsutils \
         traceroute \
@@ -74,18 +75,12 @@ RUN ZSH_PLUGINS=/usr/share/oh-my-zsh/custom/plugins && \
 # 5️⃣  Create the non‑root developer user (must be before any COPY)
 # ------------------------------------------------------------
 ARG USERNAME=devcontainer
-ARG USER_UID=1001
-ARG USER_GID=1001
+ARG USER_UID=1000
+ARG USER_GID=1000
+RUN userdel -r ubuntu
 RUN groupadd --gid ${USER_GID} ${USERNAME} && \
     useradd --create-home --uid ${USER_UID} --gid ${USER_GID} --shell /bin/zsh ${USERNAME} && \
     echo "${USERNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${USERNAME}
-
-# 👇 NEW: Add UTF-8/Australian locale exports to ~/.zprofile for tmux glyph support (overrides en_IN with correct Australia setting)
-RUN echo 'export LANG=en_AU.UTF-8' >> ${HOME}/.zprofile && \
-    echo 'export LC_ALL=en_AU.UTF-8' >> ${HOME}/.zprofile && \
-    echo 'export TERM=screen-256color' >> ${HOME}/.zprofile  # Keep TERM override for good measure
-RUN chown -R ${USERNAME}:${USERNAME} ${HOME}/.zprofile
-RUN chown -R ${USERNAME}:${USERNAME} /usr/share/nvm
 
 # ------------------------------------------------------------
 # 6️⃣  Global environment for the user (defined step‑by‑step)
@@ -98,6 +93,12 @@ ENV PNPM_HOME=${HOME}/.local/share/pnpm
 ENV PATH=/usr/local/bin:${GEM_HOME}/bin:${PNPM_HOME}:${HOME}/.local/bin:${HOME}/.uv/tools/aider-chat/latest/bin:${PATH}
 # Add NVM to bash profile (for sourcing in RUN steps)
 RUN echo 'source /usr/share/nvm/nvm.sh' >> /etc/bash.bashrc
+# 👇 NEW: Add UTF-8/Australian locale exports to ~/.zprofile for tmux glyph support (overrides en_IN with correct Australia setting)
+RUN echo 'export LANG=en_AU.UTF-8' >> ${HOME}/.zprofile && \
+    echo 'export LC_ALL=en_AU.UTF-8' >> ${HOME}/.zprofile && \
+    echo 'export TERM=screen-256color' >> ${HOME}/.zprofile  # Keep TERM override for good measure
+RUN chown -R ${USERNAME}:${USERNAME} ${HOME}/.zprofile
+RUN chown -R ${USERNAME}:${USERNAME} /usr/share/nvm
 # ------------------------------------------------------------
 # 7️⃣  Switch to the non‑root user – **everything below runs as devcontainer**
 # ------------------------------------------------------------

@@ -1,0 +1,26 @@
+{
+  "name": "Dotfile Setup",
+  "remoteUser": "devcontainer",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "containerEnv": {
+    "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
+    "GEMINI_API_KEY": "${localEnv:GEMINI_API_KEY}",
+    "DISPLAY": "${localEnv:DISPLAY}",
+    "WAYLAND_DISPLAY": "${localEnv:WAYLAND_DISPLAY}",
+    "XDG_RUNTIME_DIR": "${localEnv:XDG_RUNTIME_DIR}"
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.gitconfig,target=/home/devcontainer/.gitconfig,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.ssh,target=/home/devcontainer/.ssh,type=bind,consistency=cached",
+    "source=life-engineer-frontend-node_modules,target=/workspaces/life-engineer/frontend/node_modules,type=volume"
+  ],
+  "postStartCommand": "nvim --headless \"+MasonInstallAll\" +qa",
+  "runArgs": [
+    "--mount=type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix",
+    "--mount=type=bind,source=${localEnv:XDG_RUNTIME_DIR},target=${localEnv:XDG_RUNTIME_DIR}",
+    "--add-host=host.docker.internal:host-gateway"
+  ]
+}

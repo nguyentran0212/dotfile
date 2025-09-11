@@ -1,6 +1,15 @@
 # dotfile of GenTran0212
 
-This repository serves as a comprehensive collection of dotfiles and scripts to set up a consistent, powerful terminal-based development environment. It provides configurations for essential tools like Neovim, tmux, and zsh. Furthermore, it includes a Dockerfile defining a portable development container (devcontainer) based on Arch Linux, pre-installed with necessary development tools and configured using these dotfiles.
+This repository is my deliberate approach to computer use - a carefully selected set of tools and configurations that I use across all my development machines. It contains my personal dotfiles for setting up a consistent development environment on Arch Linux, Fedora, and macOS machines, ensuring that any machine I pick up has an identical development environment.
+
+The repository also includes my own utilities stored in `.local/bin` and defines a development container (devcontainer) based on Arch Linux, pre-installed with necessary development tools and configured using these same dotfiles.
+
+## Philosophy
+
+Rather than adapting to different environments on different machines, I've chosen to create one environment that follows me everywhere. This approach allows me to:
+- Be more efficient by not having to relearn different tool configurations
+- Maintain consistency in my development workflow
+- Extend this environment to new projects through devcontainer templates
 
 ## List of Supported Tool Configurations
 
