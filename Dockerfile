@@ -103,7 +103,7 @@ ENV HOME=/home/${USERNAME}
 ENV SHELL=/bin/zsh
 ENV NVM_DIR=/usr/share/nvm
 ENV GEM_HOME=${HOME}/.gem
-E:checkhealth masonNV PNPM_HOME=${HOME}/.local/share/pnpm
+ENV PNPM_HOME=${HOME}/.local/share/pnpm
 ENV PATH=/usr/local/bin:${GEM_HOME}/bin:${PNPM_HOME}:${HOME}/.local/bin:${HOME}/.uv/tools/aider-chat/latest/bin:${PATH}
 # Add NVM to bash profile (for sourcing in RUN steps)
 RUN echo 'source /usr/share/nvm/nvm.sh' >> /etc/bash.bashrc
