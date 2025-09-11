@@ -1,8 +1,7 @@
 # ------------------------------------------------------------
-# 1️⃣  Runtime image (multi-arch – no AUR, direct Ubuntu base)
+# 1️⃣  Runtime image (single‑stage – no AUR, direct Ubuntu base)
 # ------------------------------------------------------------
 FROM ubuntu:25.04
-
 # ------------------------------------------------------------
 # 2️⃣  Install system‑wide packages (apt-get) – must be root
 # ------------------------------------------------------------
@@ -29,7 +28,7 @@ RUN apt-get update && apt-get upgrade -y && \
         golang-go \
         gfortran \
         libopenblas-dev \
-        python3 python3-venv python3-pip\
+        python3 \
         ruby \
         texlive-latex-extra \
         fonts-powerline \
@@ -39,38 +38,26 @@ RUN apt-get update && apt-get upgrade -y && \
         && curl -L -o /usr/local/share/fonts/NerdFontsSymbols.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip \
         && unzip /usr/local/share/fonts/NerdFontsSymbols.zip -d /usr/local/share/fonts \
         && fc-cache -fv
-
 # ------------------------------------------------------------
-# Install latest Neovim based on architecture – must be root
+# Install latest Neovim (replaces older Ubuntu version) – must be root
 # ------------------------------------------------------------
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" = "x86_64" ]; then \
-        NVIM_ARCH="nvim-linux-x86_64"; \
-    elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
-        NVIM_ARCH="nvim-linux-aarch64"; \
-    else \
-        echo "Unsupported architecture: $ARCH" && exit 1; \
-    fi && \
-    curl -L https://github.com/neovim/neovim/releases/latest/download/${NVIM_ARCH}.tar.gz | \
+# FIX: Old Ubuntu Neovim lacks 'uv' module, causing errors with your init.lua. Download and install latest stable from official releases.
+RUN curl -L https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz | \
     tar zx -C /opt && \
-    ln -s /opt/${NVIM_ARCH}/bin/nvim /usr/bin/nvim
-
+    ln -s /opt/nvim-linux-x86_64/bin/nvim /usr/bin/nvim
 # ------------------------------------------------------------
 # Install UV (Python tool manager) system-wide (matching original's uv installation)
 # ------------------------------------------------------------
 RUN curl -LsSf https://astral.sh/uv/install.sh | UV_UNMANAGED_INSTALL="1" UV_INSTALL_DIR="/usr/local/bin" sh -s -- -q
-
 # Install NVM system-wide (matching original's nvm via pacman, using official installer for Ubuntu)
 # ------------------------------------------------------------
 RUN mkdir -p /usr/share/nvm && export NVM_DIR=/usr/share/nvm && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-
 # ------------------------------------------------------------
 # Install Oh‑My‑Zsh & Powerlevel10k **system‑wide**
 # ------------------------------------------------------------
 RUN cd /tmp && \
     git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /usr/share/oh-my-zsh && \
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /usr/share/zsh-theme-powerlevel10k
-
 # ------------------------------------------------------------
 # Install Zsh plugins **system‑wide** (split for reliable tar extraction)
 # ------------------------------------------------------------
@@ -84,7 +71,6 @@ RUN ZSH_PLUGINS=/usr/share/oh-my-zsh/custom/plugins && \
     curl -L -o zsh-256color.tar.gz https://github.com/chrissicool/zsh-256color/archive/refs/heads/master.tar.gz && \
     tar -xzf zsh-256color.tar.gz --strip-components=1 -C ${ZSH_PLUGINS}/zsh-256color && \
     rm -rf zsh-*.tar.gz
-
 # ------------------------------------------------------------
 # 5️⃣  Create the non‑root developer user (must be before any COPY)
 # ------------------------------------------------------------
@@ -103,7 +89,7 @@ ENV HOME=/home/${USERNAME}
 ENV SHELL=/bin/zsh
 ENV NVM_DIR=/usr/share/nvm
 ENV GEM_HOME=${HOME}/.gem
-E:checkhealth masonNV PNPM_HOME=${HOME}/.local/share/pnpm
+ENV PNPM_HOME=${HOME}/.local/share/pnpm
 ENV PATH=/usr/local/bin:${GEM_HOME}/bin:${PNPM_HOME}:${HOME}/.local/bin:${HOME}/.uv/tools/aider-chat/latest/bin:${PATH}
 # Add NVM to bash profile (for sourcing in RUN steps)
 RUN echo 'source /usr/share/nvm/nvm.sh' >> /etc/bash.bashrc
@@ -113,20 +99,17 @@ RUN echo 'export LANG=en_AU.UTF-8' >> ${HOME}/.zprofile && \
     echo 'export TERM=screen-256color' >> ${HOME}/.zprofile  # Keep TERM override for good measure
 RUN chown -R ${USERNAME}:${USERNAME} ${HOME}/.zprofile
 RUN chown -R ${USERNAME}:${USERNAME} /usr/share/nvm
-
 # ------------------------------------------------------------
 # 7️⃣  Switch to the non‑root user – **everything below runs as devcontainer**
 # ------------------------------------------------------------
 USER ${USERNAME}
 WORKDIR ${HOME}
-
 # ------------------------------------------------------------
 # 8️⃣  Install Node.js via nvm (removes need for system-wide nodejs) [FIXED FOR PARSE ERRORS]
 # ------------------------------------------------------------
 # FIX: Use /bin/bash explicitly to avoid Dash's lack of 'source' builtin. Source nvm, install latest LTS Node.js, and add it to PATH. This ensures pnpm has access to Node.js without system conflicts.
 RUN /bin/bash -c "source /usr/share/nvm/nvm.sh && nvm install node"
-RUN /bin/bash -c "source /usr/share/nvm/nvm.sh && nvm use node && NODE_VER=$(nvm current) && NODE_PATH=\"${HOME}/.nvm/versions/node/${NODE_VER}/bin\" && echo \"export PATH=\\\"${PATH}:$NODE_PATH\\\"\" >> ~/.zprofile"
-
+RUN /bin/bash -c "source /usr/share/nvm/nvm.sh && NODE_VER=\$(nvm current) && NODE_PATH=\"${HOME}/.nvm/versions/node/${NODE_VER}/bin\" && echo \"export PATH=\\\"${PATH}:$NODE_PATH\\\"\" >> ~/.zprofile && echo \"Path to Node.js binaries added to ~/.zprofile: $NODE_PATH\""
 # ------------------------------------------------------------
 # 9️⃣  Copy configuration files **as the new user**
 # ------------------------------------------------------------
@@ -135,39 +118,34 @@ COPY --chown=${USERNAME}:${USERNAME} .p10k.zsh .p10k.zsh
 COPY --chown=${USERNAME}:${USERNAME} .config/nvim .config/nvim
 COPY --chown=${USERNAME}:${USERNAME} .config/tmux .config/tmux
 COPY --chown=${USERNAME}:${USERNAME} setup_tpm.sh setup_tpm.sh
-
 # ------------------------------------------------------------
 # 11️⃣  Install PNPM globally via npm
 # ------------------------------------------------------------
 RUN /bin/bash -c "source /usr/share/nvm/nvm.sh && nvm use node && npm install -g pnpm"
-
-# ------------------------------------------------------------\n# 12️⃣  Install PNPM tools and update PATH\n# ------------------------------------------------------------\n
-RUN /bin/bash -c "source /usr/share/nvm/nvm.sh && nvm use node && mkdir -p \"${PNPM_HOME}\" && pnpm add -g @qwen-code/qwen-code@latest @google/gemini-cli >/dev/null 2>&1 && echo \"export PATH=\"${PNPM_HOME}:$PATH\"\" >> ~/.zprofile"
-
+# ------------------------------------------------------------
+# 12️⃣  Install PNPM tools and update PATH
+# ------------------------------------------------------------
+RUN /bin/bash -c "source /usr/share/nvm/nvm.sh && nvm use node && mkdir -p \"${PNPM_HOME}\" && pnpm add -g @qwen-code/qwen-code@latest @google/gemini-cli && echo \"export PATH=\\\"${PNPM_HOME}:$PATH\\\"\" >> ~/.zprofile"
 # ------------------------------------------------------------
 # 11️⃣  Python 3.12 + aider‑chat (via uv – everything stays in $HOME)
 # ------------------------------------------------------------
 RUN uv python install 3.12 && \
     uv tool install --force --python python3.12 aider-chat@latest && \
     uv tool update-shell >> ${HOME}/.zprofile
-
 # ------------------------------------------------------------
 # 12️⃣  Ruby – install Bundler in the per‑user gem directory
 # ------------------------------------------------------------
 RUN gem install bundler
 RUN /bin/bash -c "{ echo; echo '# Ruby environment'; echo \"export GEM_HOME='${GEM_HOME}'\"; echo \"export PATH='${GEM_HOME}/bin:$PATH'\"; } >> ${HOME}/.zprofile"
-
 # ------------------------------------------------------------
 # 13️⃣  Neovim – sync plugins (Lazy) and install LSPs via Mason
 # ------------------------------------------------------------
 RUN nvim --headless "+Lazy! sync" +qa && \
     nvim --headless "+MasonInstallAll" +qa
-
 # ------------------------------------------------------------
 # 14️⃣  tmux plugin manager (TPM) – run the helper script
 # ------------------------------------------------------------
 RUN chmod +x setup_tpm.sh && ./setup_tpm.sh
-
 # ------------------------------------------------------------
 # 🎉  Default entry point – you land straight into a configured Zsh
 # ------------------------------------------------------------
