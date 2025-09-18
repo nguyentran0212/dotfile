@@ -12,6 +12,7 @@ RUN apt-get update && apt-get upgrade -y && \
         git \
         openssh-client \
         openssl \
+        locales \
         xclip \
         wl-clipboard \
         ripgrep \
@@ -39,6 +40,15 @@ RUN apt-get update && apt-get upgrade -y && \
         && curl -L -o /usr/local/share/fonts/NerdFontsSymbols.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip \
         && unzip /usr/local/share/fonts/NerdFontsSymbols.zip -d /usr/local/share/fonts \
         && fc-cache -fv
+
+# ------------------------------------------------------------
+# 3️⃣ Configure Locale
+# ------------------------------------------------------------
+RUN sed -i -e 's/# en_AU.UTF-8 UTF-8/en_AU.UTF-8 UTF-8/' /etc/locale.gen && \
+    dpkg-reconfigure --frontend=noninteractive locales
+
+ENV LANG en_AU.UTF-8
+ENV LC_ALL en_AU.UTF-8
 
 # ------------------------------------------------------------
 # Install latest Neovim based on architecture – must be root
@@ -107,10 +117,6 @@ ENV PNPM_HOME=${HOME}/.local/share/pnpm
 ENV PATH=/usr/local/bin:${GEM_HOME}/bin:${PNPM_HOME}:${HOME}/.local/bin:${HOME}/.uv/tools/aider-chat/latest/bin:${PATH}
 # Add NVM to bash profile (for sourcing in RUN steps)
 RUN echo 'source /usr/share/nvm/nvm.sh' >> /etc/bash.bashrc
-# 👇 NEW: Add UTF-8/Australian locale exports to ~/.zprofile for tmux glyph support (overrides en_IN with correct Australia setting)
-RUN echo 'export LANG=en_AU.UTF-8' >> ${HOME}/.zprofile && \
-    echo 'export LC_ALL=en_AU.UTF-8' >> ${HOME}/.zprofile && \
-    echo 'export TERM=screen-256color' >> ${HOME}/.zprofile  # Keep TERM override for good measure
 RUN chown -R ${USERNAME}:${USERNAME} ${HOME}/.zprofile
 RUN chown -R ${USERNAME}:${USERNAME} /usr/share/nvm
 
@@ -141,9 +147,10 @@ COPY --chown=${USERNAME}:${USERNAME} setup_tpm.sh setup_tpm.sh
 # ------------------------------------------------------------
 RUN /bin/bash -c "source /usr/share/nvm/nvm.sh && nvm use node && npm install -g pnpm"
 
-# ------------------------------------------------------------\n# 12️⃣  Install PNPM tools and update PATH\n# ------------------------------------------------------------\n
+# ------------------------------------------------------------
+# 12️⃣  Install PNPM tools and update PATH
+# ------------------------------------------------------------
 RUN /bin/bash -c "source /usr/share/nvm/nvm.sh && nvm use node && mkdir -p \"${PNPM_HOME}\" && pnpm add -g @qwen-code/qwen-code@latest @google/gemini-cli >/dev/null 2>&1 && echo \"export PATH=\"${PNPM_HOME}:$PATH\"\" >> ~/.zprofile"
-
 # ------------------------------------------------------------
 # 11️⃣  Python 3.12 + aider‑chat (via uv – everything stays in $HOME)
 # ------------------------------------------------------------
@@ -156,7 +163,6 @@ RUN uv python install 3.12 && \
 # ------------------------------------------------------------
 RUN gem install bundler
 RUN /bin/bash -c "{ echo; echo '# Ruby environment'; echo \"export GEM_HOME='${GEM_HOME}'\"; echo \"export PATH='${GEM_HOME}/bin:$PATH'\"; } >> ${HOME}/.zprofile"
-
 # ------------------------------------------------------------
 # 13️⃣  Neovim – sync plugins (Lazy) and install LSPs via Mason
 # ------------------------------------------------------------
