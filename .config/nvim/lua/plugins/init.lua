@@ -14,18 +14,22 @@ return {
   },
 
   {
-  	"nvim-treesitter/nvim-treesitter",
-  	opts = {
-  		ensure_installed = {
-  			"vim", "lua", "vimdoc", "html", "css",
-  		},
+    "nvim-treesitter/nvim-treesitter",
+    opts = {
+      ensure_installed = {
+        "vim",
+        "lua",
+        "vimdoc",
+        "html",
+        "css",
+      },
       highlight = {
-        disable = {"markdown_inline", "markdown", "latex"}
-      }, 
+        disable = { "markdown_inline", "markdown", "latex" },
+      },
       indent = {
-        enable = true
-      }
-  	},
+        enable = true,
+      },
+    },
   },
   {
     "lervag/vimtex",
@@ -33,13 +37,17 @@ return {
       -- vim.g.vimtex_view_general_viewer = "okular"
       vim.g.vimtex_fold_enabled = 1
       vim.g.vimtex_complete_enabled = 0
-    end
+    end,
   },
   {
-    "lukas-reineke/indent-blankline.nvim",
-    main = "ibl",
-    ---@module "ibl"
-    ---@type ibl.config
-    opts = {},
-  }
+    "ggml-org/llama.vim",
+    lazy=false,
+    init = function()
+      vim.g.llama_config = {
+        endpoint = "http://100.86.233.127:8080/infill",
+        model = "Qwen3-30B-A3B-Instruct-2507-UD-Q4_K_XL",
+        auto_fim = false,
+      }
+    end,
+  },
 }
