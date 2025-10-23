@@ -4,5 +4,6 @@ require "nvchad.options"
 
 local o = vim.o
 o.foldmethod = "expr"
-o.foldexpr = "v:lua.vim.lsp.foldexpr()"
+o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+o.relativenumber = true
 vim.opt.clipboard = "unnamedplus"
